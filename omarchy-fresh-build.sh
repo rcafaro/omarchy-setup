@@ -362,15 +362,17 @@ else
 fi
 
 ###############################################################################
-# 12. WINDOWS FONTS (SMB from mustafar)
+# 12. WINDOWS FONTS (SMB from NAS)
 ###############################################################################
 section "12 — Windows fonts (optional, requires SMB credentials)"
 
-read -rp "Install Windows fonts from mustafar? [y/N] " FONT_ANSWER
+read -rp "Install Windows fonts from NAS? [y/N] " FONT_ANSWER
 if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
-    read -rp "SMB username: " SMB_USER
-    read -rsp "SMB password: " SMB_PASS
-    echo ""
+    if [ -z "${SMB_USER}" ]; then
+        read -rp "NAS SMB username: " SMB_USER
+        read -rsp "NAS SMB password: " SMB_PASS
+        echo ""
+    fi
 
     TMP_DIR=$(mktemp -d)
     trap "rm -rf $TMP_DIR" EXIT
@@ -452,9 +454,14 @@ else
     if ! grep -q "//${NAS_TAILSCALE_IP}/pool" /etc/fstab 2>/dev/null; then
         sudo mkdir -p /mnt/pool /mnt/media
 
-        read -rp "NAS username: " FSTAB_USER
-        read -rsp "NAS password: " FSTAB_PASS
-        echo ""
+        if [ -z "${SMB_USER}" ]; then
+            read -rp "NAS username: " FSTAB_USER
+            read -rsp "NAS password: " FSTAB_PASS
+            echo ""
+        else
+            FSTAB_USER="${SMB_USER}"
+            FSTAB_PASS="${SMB_PASS}"
+        fi
 
         cat <<FSTAB | sudo tee -a /etc/fstab
 //${NAS_TAILSCALE_IP}/pool   /mnt/pool   cifs   x-systemd.automount,x-systemd.idle-timeout=60,soft,nofail,username=${FSTAB_USER},password=${FSTAB_PASS},uid=1000,gid=1000,iocharset=utf8,file_mode=0775,dir_mode=0775,nomapposix,cache=none   0 0
