@@ -122,7 +122,10 @@ omarchy install service spotify
 section "7 — Plugins"
 
 # OpenVPN
-omarchy plugin add https://github.com/tug-benson/omarchy-openvpn.git --enable
+omarchy plugin add https://github.com/HcDuller/omarchy-vpn.git --enable
+
+# flea file manager
+omarchy pkg add flea && flea --default
 
 # Atrium (requires manual setup after)
 omarchy plugin add https://github.com/bitshiftxr/atrium.git --enable
