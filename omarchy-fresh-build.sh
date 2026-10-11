@@ -84,6 +84,9 @@ omarchy install browser brave-origin
 omarchy install editor vscode
 omarchy pkg add rclone corectl file-roller syncthing gnome-calendar nano remmina kdeconnect sunshine
 
+# flea file manager
+omarchy pkg add flea && flea --default
+
 ###############################################################################
 # 3. AUR PACKAGES
 ###############################################################################
@@ -124,9 +127,6 @@ section "7 — Plugins"
 # OpenVPN
 omarchy plugin add https://github.com/HcDuller/omarchy-vpn.git --enable
 
-# flea file manager
-omarchy pkg add flea && flea --default
-
 # Atrium (requires manual setup after)
 omarchy plugin add https://github.com/bitshiftxr/atrium.git --enable
 echo "[!] Run atrium setup manually: ${BUILD_DIR}/io.github.bitshiftxr.atrium/setup"
@@ -145,7 +145,10 @@ omarchy plugin disable omarchy.workspaces
 omarchy plugin add https://github.com/BibekBhusal0/omarchy-better-lock.git --enable
 
 # KDE Connect Quick Reply
-omarchy plugin add https://github.com/UnderStackDev/omarchy_kdeconnect_quick_reply.git --enable
+#omarchy plugin add https://github.com/UnderStackDev/omarchy_kdeconnect_quick_reply.git --enable
+
+#Foamy notifications
+omarchy plugin add https://github.com/foamrider/foamy-notifications.git --enable
 
 # OmaMigrate (with custom binding)
 omarchy plugin add https://github.com/luneth90/omamigrate.git --enable
