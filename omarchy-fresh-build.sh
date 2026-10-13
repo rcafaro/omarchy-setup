@@ -44,11 +44,15 @@ PULSE_DIR="${HOME}/pulse-omarchy"           # pulse scripts live here (copied du
 UNAGUI_LOGO="${ASSETS_DIR}/screensaver_logo.png"
 UNAGUI_LOGO_INV="${ASSETS_DIR}/login_logo.png"
 
+# ─── Helpers (MUST be defined before first use) ─────────────────────────────
+section() { echo ""; echo "═══════════════════════════════════════"; echo "  $1"; echo "═══════════════════════════════════════"; }
+warn()    { echo "[!] $*" >&2; }
+
 # ── Verify required assets ────────────────────────────────────────────────
 MISSING=0
 for f in os-release.kubuntu screensaver_logo.png login_logo.png; do
     if [ ! -f "${ASSETS_DIR}/${f}" ]; then
-        echo "Missing asset: ${ASSETS_DIR}/${f}"
+        warn "Missing asset: ${ASSETS_DIR}/${f}"
         MISSING=1
     fi
 done
@@ -56,10 +60,6 @@ if [ "$MISSING" -eq 1 ]; then
     echo "Place required files in ${ASSETS_DIR}/ and re-run." >&2
     exit 1
 fi
-
-# ─── Helpers ────────────────────────────────────────────────────────────────
-section() { echo ""; echo "═══════════════════════════════════════"; echo "  $1"; echo "═══════════════════════════════════════"; }
-echo()    { echo "[!] $*" >&2; }
 
 ###############################################################################
 # 0. SECURITY & SSH
@@ -183,7 +183,7 @@ if [ -f "${PULSE_CACHE}/PKGBUILD" ]; then
         "${PULSE_CACHE}/PKGBUILD"
     cd "${PULSE_CACHE}" && makepkg -si
 else
-    echo "PKGBUILD not found at ${PULSE_CACHE} — Pulse may already be installed."
+    warn "PKGBUILD not found at ${PULSE_CACHE} — Pulse may already be installed."
 fi
 
 sudo systemctl daemon-reload
@@ -247,7 +247,7 @@ ${USER} ALL=(ALL) NOPASSWD: /bin/cp /etc/os-release ${PULSE_DIR}/os-release.omar
 TMPFILE=$(mktemp)
 echo "$SUDOERS_CONTENT" > "$TMPFILE"
 if ! visudo -cf "$TMPFILE" &>/dev/null; then
-    echo "Sudoers syntax error — skipping."
+    warn "Sudoers syntax error — skipping."
     rm -f "$TMPFILE"; exit 1
 fi
 sudo cp "$TMPFILE" /etc/sudoers.d/pulse
@@ -358,13 +358,13 @@ if [ -f "$UNAGUI_LOGO" ]; then
     omarchy transcode ascii "$UNAGUI_LOGO" \
         ~/.config/omarchy/branding/screensaver.txt --width 80
 else
-    echo "Unagui logo not found at $UNAGUI_LOGO — skipping screensaver."
+    warn "Unagui logo not found at $UNAGUI_LOGO — skipping screensaver."
 fi
 
 if [ -f "$UNAGUI_LOGO_INV" ]; then
     omarchy plymouth set '#000000' '#aa90cf' "$UNAGUI_LOGO_INV"
 else
-    echo "Unagui logo (inverted) not found — skipping boot screen."
+    warn "Unagui logo (inverted) not found — skipping boot screen."
 fi
 
 ###############################################################################
@@ -386,7 +386,7 @@ if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
     smbclient "//${SMB_SERVER}/${SMB_SHARE_PATH}" \
         -U "${SMB_USER}%${SMB_PASS}" \
         -c 'prompt; mget *' -o "$TMP_DIR" 2>/dev/null || {
-        echo "Failed to fetch fonts from SMB share."
+        warn "Failed to fetch fonts from SMB share."
     }
 
     FONT_COUNT=$(find "$TMP_DIR" -maxdepth 1 \
@@ -400,7 +400,7 @@ if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
         fc-cache -fv "${HOME}/.local/share/fonts" >/dev/null
         echo "   ✓ ${FONT_COUNT} font(s) installed."
     else
-        echo "No font files found in the share."
+        warn "No font files found in the share."
     fi
 else
     echo "   Skipping fonts."
