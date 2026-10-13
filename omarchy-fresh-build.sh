@@ -71,7 +71,7 @@ if [[ "${SKIP_TAILSCALE:-0}" != "1" ]] && [[ -t 0 ]] && ! systemctl is-active --
         *)     INSTALL_TAILSCALE=0 ;;
     esac
 else
-    INSTALL_TAILSCALE=$(( SKIP_TAILSCALE != 1 ))
+    INSTALL_TAILSCALE=$(( ${SKIP_TAILSCALE:-0} != 1 ))
 fi
 
 ###############################################################################
