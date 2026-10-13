@@ -83,7 +83,7 @@ done
 section "2 — Core packages (official)"
 try omarchy install browser brave-origin
 try omarchy install editor vscode
-try omarchy pkg add rclone file-roller syncthing gnome-calendar nano remmina kdeconnect sunshine
+try omarchy pkg add rclone corectrl file-roller syncthing gnome-calendar nano remmina kdeconnect sunshine
 
 # flea file manager
 try omarchy pkg add flea
@@ -95,7 +95,7 @@ try flea --default
 section "3 — AUR packages"
 for pkg in todoist-appimage teams-for-linux-bin zoom arduino-ide-bin \
            epson-inkjet-printer-201207w epson-printer-utility \
-           seafile-client bindfs hyprmon
+           seafile-client bindfs; do
     echo "Installing from AUR: $pkg"
     try omarchy pkg aur add "$pkg"
 done
