@@ -182,7 +182,22 @@ section "8 — Pulse Secure"
 
 # Dependencies
 try omarchy pkg add gtkmm3
-try omarchy pkg aur add webkit2gtk
+
+# WebKitGTK: prefer the prebuilt package shipped in assets/ (saves HOURS of
+# source compilation). Fall back to an AUR build only if it can't be installed.
+WEBKIT_PKG="$(ls -1 "${ASSETS_DIR}/webkit2gtk/"*.pkg.tar.zst 2>/dev/null | head -n1)"
+if [ -n "${WEBKIT_PKG}" ]; then
+    if sudo pacman -U --noconfirm "${WEBKIT_PKG}"; then
+        echo "   Installed prebuilt webkit2gtk from ${WEBKIT_PKG}"
+    else
+        warn "Prebuilt webkit2gtk install failed — building from AUR source instead."
+        try omarchy pkg aur add webkit2gtk
+    fi
+else
+    echo "   No prebuilt webkit2gtk in assets/ — building from AUR source (this takes HOURS)."
+    try omarchy pkg aur add webkit2gtk
+fi
+
 try omarchy pkg aur add pulse-secure
 
 # Patch PKGBUILD for latest version
