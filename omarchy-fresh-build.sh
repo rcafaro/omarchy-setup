@@ -99,7 +99,7 @@ try flea --default
 section "3 — AUR packages"
 for pkg in todoist-appimage teams-for-linux-bin zoom arduino-ide-bin \
            epson-inkjet-printer-201207w epson-printer-utility \
-           seafile-client bindfs; do
+           seafile-client bindfs hyprmon-bin; do
     echo "Installing from AUR: $pkg"
     try omarchy pkg aur add "$pkg"
 done
