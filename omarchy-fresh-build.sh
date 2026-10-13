@@ -66,7 +66,11 @@ fi
 # 0. SECURITY & SSH
 ###############################################################################
 section "0 — Security & SSH"
-omarchy setup security sshd
+if systemctl is-active --quiet sshd 2>/dev/null && [ -s "${HOME}/.ssh/authorized_keys" ]; then
+    echo "   SSH server active and authorized_keys present — skipping key setup."
+else
+    omarchy setup security sshd
+fi
 
 ###############################################################################
 # 1. REMOVE UNWANTED WEBAPPS
