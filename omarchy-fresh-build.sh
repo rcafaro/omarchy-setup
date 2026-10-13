@@ -62,6 +62,18 @@ if [ "$MISSING" -eq 1 ]; then
     exit 1
 fi
 
+# ── Interactive choices (guarded by env overrides) ─────────────────────────
+# SKIP_TAILSCALE=1  → do not install Tailscale (noninteractive override)
+if [[ "${SKIP_TAILSCALE:-0}" != "1" ]] && [[ -t 0 ]] && ! systemctl is-active --quiet tailscaled; then
+    read -r -p "Install Tailscale? (y/N) " _ans
+    case "${_ans,,}" in
+        y|yes) INSTALL_TAILSCALE=1 ;;
+        *)     INSTALL_TAILSCALE=0 ;;
+    esac
+else
+    INSTALL_TAILSCALE=$(( SKIP_TAILSCALE != 1 ))
+fi
+
 ###############################################################################
 # 0. SECURITY & SSH
 ###############################################################################
@@ -122,12 +134,14 @@ try omarchy voxtype config
 # 6. SERVICES: Tailscale, Spotify
 ###############################################################################
 section "6 — Tailscale & Spotify"
-if [[ "${SKIP_TAILSCALE:-0}" == "1" ]]; then
-    echo "   Tailscale skipped via SKIP_TAILSCALE=1."
-elif systemctl is-active --quiet tailscaled && omarchy-pkg-present tailscale; then
-    echo "   Tailscale already active — skipping (set SKIP_TAILSCALE=1 to skip always)."
+if [[ "${INSTALL_TAILSCALE}" == "1" ]]; then
+    if systemctl is-active --quiet tailscaled && omarchy-pkg-present tailscale; then
+        echo "   Tailscale already active — skipping."
+    else
+        try omarchy install service tailscale
+    fi
 else
-    try omarchy install service tailscale
+    echo "   Tailscale not installed (declined at start or SKIP_TAILSCALE=1)."
 fi
 try omarchy install service spotify
 
