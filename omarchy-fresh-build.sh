@@ -48,7 +48,7 @@ UNAGUI_LOGO_INV="${ASSETS_DIR}/login_logo.png"
 MISSING=0
 for f in os-release.kubuntu screensaver_logo.png login_logo.png; do
     if [ ! -f "${ASSETS_DIR}/${f}" ]; then
-        warn "Missing asset: ${ASSETS_DIR}/${f}"
+        echo "Missing asset: ${ASSETS_DIR}/${f}"
         MISSING=1
     fi
 done
@@ -59,7 +59,7 @@ fi
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
 section() { echo ""; echo "═══════════════════════════════════════"; echo "  $1"; echo "═══════════════════════════════════════"; }
-warn()    { echo "[!] $*" >&2; }
+echo()    { echo "[!] $*" >&2; }
 
 ###############################################################################
 # 0. SECURITY & SSH
@@ -183,7 +183,7 @@ if [ -f "${PULSE_CACHE}/PKGBUILD" ]; then
         "${PULSE_CACHE}/PKGBUILD"
     cd "${PULSE_CACHE}" && makepkg -si
 else
-    warn "PKGBUILD not found at ${PULSE_CACHE} — Pulse may already be installed."
+    echo "PKGBUILD not found at ${PULSE_CACHE} — Pulse may already be installed."
 fi
 
 sudo systemctl daemon-reload
@@ -247,7 +247,7 @@ ${USER} ALL=(ALL) NOPASSWD: /bin/cp /etc/os-release ${PULSE_DIR}/os-release.omar
 TMPFILE=$(mktemp)
 echo "$SUDOERS_CONTENT" > "$TMPFILE"
 if ! visudo -cf "$TMPFILE" &>/dev/null; then
-    warn "Sudoers syntax error — skipping."
+    echo "Sudoers syntax error — skipping."
     rm -f "$TMPFILE"; exit 1
 fi
 sudo cp "$TMPFILE" /etc/sudoers.d/pulse
@@ -358,13 +358,13 @@ if [ -f "$UNAGUI_LOGO" ]; then
     omarchy transcode ascii "$UNAGUI_LOGO" \
         ~/.config/omarchy/branding/screensaver.txt --width 80
 else
-    warn "Unagui logo not found at $UNAGUI_LOGO — skipping screensaver."
+    echo "Unagui logo not found at $UNAGUI_LOGO — skipping screensaver."
 fi
 
 if [ -f "$UNAGUI_LOGO_INV" ]; then
     omarchy plymouth set '#000000' '#aa90cf' "$UNAGUI_LOGO_INV"
 else
-    warn "Unagui logo (inverted) not found — skipping boot screen."
+    echo "Unagui logo (inverted) not found — skipping boot screen."
 fi
 
 ###############################################################################
@@ -386,7 +386,7 @@ if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
     smbclient "//${SMB_SERVER}/${SMB_SHARE_PATH}" \
         -U "${SMB_USER}%${SMB_PASS}" \
         -c 'prompt; mget *' -o "$TMP_DIR" 2>/dev/null || {
-        warn "Failed to fetch fonts from SMB share."
+        echo "Failed to fetch fonts from SMB share."
     }
 
     FONT_COUNT=$(find "$TMP_DIR" -maxdepth 1 \
@@ -400,7 +400,7 @@ if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
         fc-cache -fv "${HOME}/.local/share/fonts" >/dev/null
         echo "   ✓ ${FONT_COUNT} font(s) installed."
     else
-        warn "No font files found in the share."
+        echo "No font files found in the share."
     fi
 else
     echo "   Skipping fonts."
@@ -434,7 +434,7 @@ application/javascript=code.desktop
 EOF
     echo "   mimeapps.list updated with code.desktop defaults."
 else
-    warn "code.desktop already present in mimeapps.list — skipping."
+    echo "code.desktop already present in mimeapps.list — skipping."
 fi
 
 update-desktop-database "${HOME}/.local/share/applications" 2>/dev/null || true
@@ -445,7 +445,7 @@ for mime in text/plain text/x-shellscript text/x-python; do
     if [[ "$result" == *"code.desktop"* ]]; then
         echo "   ✓ ${mime} → code.desktop"
     else
-        warn "${mime} → ${result:-unknown}"
+        echo "${mime} → ${result:-unknown}"
     fi
 done
 
@@ -455,7 +455,7 @@ done
 section "Mounting NAS shares via fstab"
 
 if [ -z "${NAS_TAILSCALE_IP}" ]; then
-    warn "NAS_TAILSCALE_IP not set — skipping fstab mounts."
+    echo "NAS_TAILSCALE_IP not set — skipping fstab mounts."
 else
     if ! grep -q "//${NAS_TAILSCALE_IP}/pool" /etc/fstab 2>/dev/null; then
         sudo mkdir -p /mnt/pool /mnt/media
@@ -474,9 +474,9 @@ else
 //${NAS_TAILSCALE_IP}/media  /mnt/media  cifs   x-systemd.automount,x-systemd.idle-timeout=60,soft,nofail,username=${FSTAB_USER},password=${FSTAB_PASS},uid=1000,gid=1000,iocharset=utf8,file_mode=0775,dir_mode=0775,nomapposix,cache=none   0 0
 FSTAB
 
-        sudo mount -a 2>/dev/null && echo "   ✓ NAS shares mounted." || warn "mount -a failed — check credentials."
+        sudo mount -a 2>/dev/null && echo "   ✓ NAS shares mounted." || echo "mount -a failed — check credentials."
     else
-        warn "NAS fstab entries already present — skipping."
+        echo "NAS fstab entries already present — skipping."
     fi
 fi
 
