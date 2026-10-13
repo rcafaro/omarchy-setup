@@ -47,6 +47,7 @@ UNAGUI_LOGO_INV="${ASSETS_DIR}/login_logo.png"
 # ─── Helpers (MUST be defined before first use) ─────────────────────────────
 section() { echo ""; echo "═══════════════════════════════════════"; echo "  $1"; echo "═══════════════════════════════════════"; }
 warn()    { echo "[!] $*" >&2; }
+try()     { if ! "$@"; then warn "step failed (continuing): $*"; fi; }
 
 # ── Verify required assets ────────────────────────────────────────────────
 MISSING=0
@@ -73,19 +74,20 @@ omarchy setup security sshd
 section "1 — Remove unwanted webapps"
 for app in hey HEY X Basecamp "Google Messages" Zoom; do
     echo "Removing webapp: $app"
-    omarchy webapp remove "$app"
+    try omarchy webapp remove "$app"
 done
 
 ###############################################################################
 # 2. CORE PACKAGES (official repos)
 ###############################################################################
 section "2 — Core packages (official)"
-omarchy install browser brave-origin
-omarchy install editor vscode
-omarchy pkg add rclone corectl file-roller syncthing gnome-calendar nano remmina kdeconnect sunshine
+try omarchy install browser brave-origin
+try omarchy install editor vscode
+try omarchy pkg add rclone corectl file-roller syncthing gnome-calendar nano remmina kdeconnect sunshine
 
 # flea file manager
-omarchy pkg add flea && flea --default
+try omarchy pkg add flea
+try flea --default
 
 ###############################################################################
 # 3. AUR PACKAGES
@@ -95,7 +97,7 @@ for pkg in todoist-appimage teams-for-linux-bin zoom arduino-ide-bin \
            epson-inkjet-printer-201207w epson-printer-utility \
            seafile-client bindfs; do
     echo "Installing from AUR: $pkg"
-    omarchy pkg aur add "$pkg"
+    try omarchy pkg aur add "$pkg"
 done
 
 ###############################################################################
@@ -109,15 +111,15 @@ sudo systemctl enable --now ecbd.service   # Epson printer daemon
 # 5. VOXTYPE (keyboard layout)
 ###############################################################################
 section "5 — Voxtype"
-omarchy voxtype install
-omarchy voxtype config
+try omarchy voxtype install
+try omarchy voxtype config
 
 ###############################################################################
 # 6. SERVICES: Tailscale, Spotify
 ###############################################################################
 section "6 — Tailscale & Spotify"
-omarchy install service tailscale
-omarchy install service spotify
+try omarchy install service tailscale
+try omarchy install service spotify
 
 ###############################################################################
 # 7. PLUGINS
@@ -125,43 +127,43 @@ omarchy install service spotify
 section "7 — Plugins"
 
 # OpenVPN
-omarchy plugin add https://github.com/HcDuller/omarchy-vpn.git --enable
+try omarchy plugin add https://github.com/HcDuller/omarchy-vpn.git --enable
 
 # Atrium (requires manual setup after)
-omarchy plugin add https://github.com/bitshiftxr/atrium.git --enable
+try omarchy plugin add https://github.com/bitshiftxr/atrium.git --enable
 echo "[!] Run atrium setup manually: ${BUILD_DIR}/io.github.bitshiftxr.atrium/setup"
 
 # Todoist
-omarchy plugin add https://github.com/xak47d/omarchy-todoist.git --enable
+try omarchy plugin add https://github.com/xak47d/omarchy-todoist.git --enable
 
 # Activity Monitor
-omarchy plugin add https://github.com/stappmus/omarchy-activity-monitor.git --enable
+try omarchy plugin add https://github.com/stappmus/omarchy-activity-monitor.git --enable
 
 # Better Workspaces (replace default)
-omarchy plugin add https://github.com/LukasTrust/betterWorkspaces.git --enable
+try omarchy plugin add https://github.com/LukasTrust/betterWorkspaces.git --enable
 omarchy plugin disable omarchy.workspaces
 
 # Better Lock
-omarchy plugin add https://github.com/BibekBhusal0/omarchy-better-lock.git --enable
+try omarchy plugin add https://github.com/BibekBhusal0/omarchy-better-lock.git --enable
 
 # KDE Connect Quick Reply
 #omarchy plugin add https://github.com/UnderStackDev/omarchy_kdeconnect_quick_reply.git --enable
 
 #Foamy notifications
-omarchy plugin add https://github.com/foamrider/foamy-notifications.git --enable
+try omarchy plugin add https://github.com/foamrider/foamy-notifications.git --enable
 
 # OmaMigrate (with custom binding)
-omarchy plugin add https://github.com/luneth90/omamigrate.git --enable
+try omarchy plugin add https://github.com/luneth90/omamigrate.git --enable
 echo 'o.bind("SUPER + CTRL + M", "OmaMigrate", "omarchy-shell shell toggle luneth90.omamigrate")' \
     >> ~/.config/hypr/bindings.lua
 omarchy restart shell
 
 # KDE Connect plugin + firewall
-omarchy plugin add https://github.com/seb-krz/omarchy-connect.git --enable
+try omarchy plugin add https://github.com/seb-krz/omarchy-connect.git --enable
 sudo ufw allow 1714:1764/tcp
 
 # Rclone OneDrive
-omarchy plugin add https://github.com/jason-watts/omarchy-rclone-onedrive.git --enable
+try omarchy plugin add https://github.com/jason-watts/omarchy-rclone-onedrive.git --enable
 
 ###############################################################################
 # 8. PULSE SECURE (full install + launcher)
@@ -169,9 +171,9 @@ omarchy plugin add https://github.com/jason-watts/omarchy-rclone-onedrive.git --
 section "8 — Pulse Secure"
 
 # Dependencies
-omarchy pkg add gtkmm3
-omarchy pkg aur add webkit2gtk
-omarchy pkg aur add pulse-secure
+try omarchy pkg add gtkmm3
+try omarchy pkg aur add webkit2gtk
+try omarchy pkg aur add pulse-secure
 
 # Patch PKGBUILD for latest version
 PULSE_CACHE="${HOME}/.cache/yay/pulse-secure"
@@ -276,7 +278,7 @@ DESKTOP
 ###############################################################################
 section "9 — Waydroid"
 
-omarchy pkg aur add waydroid binder_linux-dkms
+try omarchy pkg aur add waydroid binder_linux-dkms
 
 # Load kernel module + persist across reboots
 sudo modprobe binder_linux devices="binder,hwbinder,vndbinder"
@@ -336,11 +338,11 @@ echo "   JW handler verification: ${VERIFIED}"
 ###############################################################################
 section "10 — Gaming"
 
-omarchy install gaming steam
-omarchy install gaming lutris
-omarchy install gaming heroic
-omarchy install gaming battlenet
-omarchy install gaming xbox-controllers
+try omarchy install gaming steam
+try omarchy install gaming lutris
+try omarchy install gaming heroic
+try omarchy install gaming battlenet
+try omarchy install gaming xbox-controllers
 
 # Sunshine firewall (local LAN + Tailscale)
 sudo ufw allow from "${LAN_SUBNET}" to any port 47984,47989,47990,48010 proto tcp
