@@ -122,7 +122,13 @@ try omarchy voxtype config
 # 6. SERVICES: Tailscale, Spotify
 ###############################################################################
 section "6 — Tailscale & Spotify"
-try omarchy install service tailscale
+if [[ "${SKIP_TAILSCALE:-0}" == "1" ]]; then
+    echo "   Tailscale skipped via SKIP_TAILSCALE=1."
+elif systemctl is-active --quiet tailscaled && omarchy-pkg-present tailscale; then
+    echo "   Tailscale already active — skipping (set SKIP_TAILSCALE=1 to skip always)."
+else
+    try omarchy install service tailscale
+fi
 try omarchy install service spotify
 
 ###############################################################################
