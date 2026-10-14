@@ -3,6 +3,15 @@
 # Standalone: bash sections/08-pulse-secure.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 
+# Standalone guard: the orchestrator skips this section entirely when Pulse is
+# declined, so exit here only ever fires on a direct run. No state mark —
+# flipping the choice later re-runs the install.
+resolve_install_pulse
+if [[ "${INSTALL_PULSE}" != "1" ]]; then
+    echo "   Pulse Secure declined — nothing to do."
+    exit 0
+fi
+
 section "8 — Pulse Secure"
 
 # Dependencies

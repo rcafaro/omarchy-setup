@@ -3,6 +3,14 @@
 # Standalone: bash sections/10-gaming.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 
+# Standalone guard: the orchestrator skips gaming on laptop profiles, so exit
+# here only ever fires on a direct run. No state mark — desktop re-runs work.
+resolve_device_type
+if [[ "${DEVICE_TYPE}" == "laptop" ]]; then
+    echo "   Gaming skipped on laptop profile."
+    exit 0
+fi
+
 section "10 — Gaming"
 
 try omarchy install gaming steam

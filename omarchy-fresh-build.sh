@@ -18,12 +18,16 @@
 #       screensaver_logo.png  (Unagui logo for ASCII screensaver)
 #       login_logo.png        (Unagui inverted logo for Plymouth boot screen)
 #     Note: os-release.omarchy is captured live from /etc/os-release at runtime.
-#   • SMB credentials for the font server (NAS, 192.168.200.201) — prompted at
-#     runtime, section 12. Skip that step if you don't need Windows fonts.
+#   • SMB credentials for the font server (NAS, 192.168.200.201) — offered at
+#     the upfront prompt; sections needing them skip gracefully without.
 #
-# Config: omarchy-build.ini (repo root) — network, SMB credentials, paths.
+# Config: omarchy-build.ini (repo root) — network, device profile, component
+#         toggles, SMB credentials, paths. Any value pinned there is not asked.
 # State:  ~/.omarchy-build-state — completed sections are skipped on re-run;
 #         delete the file to force a full rebuild.
+#
+# All prompts happen in the upfront block below; once the section loop starts
+# it runs unattended (non-TTY safe).
 #
 # Usage: bash omarchy-fresh-build.sh
 ###############################################################################
@@ -36,16 +40,59 @@ source "${SECTIONS_DIR}/_lib.sh"
 
 check_required_assets
 
-# Ask up front whether to install Tailscale (honors SKIP_TAILSCALE=1).
-resolve_tailscale_choice
+###############################################################################
+# UPFRONT DECISIONS — every prompt lives here, so the loop below never stops.
+# Precedence everywhere: env var > omarchy-build.ini > interactive question.
+###############################################################################
+section "Build options (all prompts happen now)"
+
+resolve_device_type          # desktop|laptop → drives package selection
+export DEVICE_TYPE
+echo "   Device profile : ${DEVICE_TYPE}"
+
+resolve_install_pulse        # 1|0, default yes
+export INSTALL_PULSE
+echo "   Pulse Secure   : $([[ "${INSTALL_PULSE}" == "1" ]] && echo yes || echo no)"
+
+resolve_tailscale_choice     # derived from device profile; env overrides win
 export INSTALL_TAILSCALE
+echo "   Tailscale      : $([[ "${INSTALL_TAILSCALE}" == "1" ]] && echo yes || echo no)  (laptop installs, desktop skips)"
+
+resolve_fonts_choice         # 1|0, default no
+if [[ -n "${MOUNT_SERVER}" && -z "${SMB_USER}" ]]; then
+    if [[ "$(ask_yn "Configure NAS access (fonts + mounts need SMB credentials)? " y)" == "y" ]]; then
+        collect_smb_creds
+    fi
+fi
+if [[ "${INSTALL_FONTS}" == "1" && ( -z "${SMB_USER}" || -z "${SMB_PASS}" ) ]]; then
+    warn "No SMB credentials — Windows fonts will be skipped."
+    INSTALL_FONTS=0
+fi
+export INSTALL_FONTS
+echo "   Windows fonts  : $([[ "${INSTALL_FONTS}" == "1" ]] && echo yes || echo no)"
+
+# A section disabled by the choices above is skipped WITHOUT a state mark, so
+# flipping the choice later re-runs it. Choice beats stale state: checked first.
+section_disabled() { # $1 = section name → echoes reason and returns 0 when disabled
+    case "$1" in
+        08-pulse-secure)
+            [[ "${INSTALL_PULSE}" == "1" ]] || { echo "Pulse Secure declined"; return 0; } ;;
+        10-gaming)
+            if [[ "${DEVICE_TYPE}" == "laptop" ]]; then echo "laptop profile (no gaming)"; return 0; fi ;;
+        12-windows-fonts)
+            [[ "${INSTALL_FONTS}" == "1" ]] || { echo "fonts declined or no SMB credentials"; return 0; } ;;
+        14-nas-mounts)
+            if [[ -z "${MOUNT_SERVER}" ]]; then echo "no NAS server configured"; return 0; fi
+            if [[ -z "${SMB_USER}" || -z "${SMB_PASS}" ]]; then echo "no SMB credentials"; return 0; fi ;;
+    esac
+    return 1
+}
 
 ###############################################################################
 # Run sections in order. Each is also independently runnable:
 #   bash sections/NN-name.sh
 # Sourced (not exec'd) so state passes between modules — e.g. the SMB
-# credentials entered in 12 are reused by 14.
-# Completed sections (see ~/.omarchy-build-state) are skipped on re-run.
+# credentials entered upfront are reused by fonts and mounts.
 ###############################################################################
 for s in \
     00-security-ssh \
@@ -64,6 +111,10 @@ for s in \
     13-vscode-default-editor \
     14-nas-mounts
 do
+    if reason=$(section_disabled "$s"); then
+        echo "[skip] ${s} — ${reason}"
+        continue
+    fi
     if section_done "$s"; then
         echo "[skip] ${s} — already completed (state: ${STATE_FILE})"
         continue
