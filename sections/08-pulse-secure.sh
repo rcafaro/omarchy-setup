@@ -122,3 +122,5 @@ Categories=Network;Security;
 StartupWMClass=pulseUI
 Keywords=Pulse;Ivanti;ISAC;VPN;
 DESKTOP
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

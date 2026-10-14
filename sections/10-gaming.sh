@@ -17,3 +17,5 @@ sudo ufw allow from "${LAN_SUBNET}" to any port 47998,47999,48000,48010 proto ud
 sudo ufw allow from "${TAILSCALE_NET}"   to any port 47984,47989,47990,48010 proto tcp
 sudo ufw allow from "${TAILSCALE_NET}"   to any port 47998,47999,48000,48010 proto udp
 sudo ufw reload
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

@@ -17,3 +17,5 @@ else
     echo "   Tailscale not installed (declined at start or SKIP_TAILSCALE=1)."
 fi
 try omarchy install service spotify
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

@@ -21,6 +21,10 @@
 #   • SMB credentials for the font server (NAS, 192.168.200.201) — prompted at
 #     runtime, section 12. Skip that step if you don't need Windows fonts.
 #
+# Config: omarchy-build.ini (repo root) — network, SMB credentials, paths.
+# State:  ~/.omarchy-build-state — completed sections are skipped on re-run;
+#         delete the file to force a full rebuild.
+#
 # Usage: bash omarchy-fresh-build.sh
 ###############################################################################
 set -euo pipefail
@@ -41,6 +45,7 @@ export INSTALL_TAILSCALE
 #   bash sections/NN-name.sh
 # Sourced (not exec'd) so state passes between modules — e.g. the SMB
 # credentials entered in 12 are reused by 14.
+# Completed sections (see ~/.omarchy-build-state) are skipped on re-run.
 ###############################################################################
 for s in \
     00-security-ssh \
@@ -59,6 +64,10 @@ for s in \
     13-vscode-default-editor \
     14-nas-mounts
 do
+    if section_done "$s"; then
+        echo "[skip] ${s} — already completed (state: ${STATE_FILE})"
+        continue
+    fi
     source "${SECTIONS_DIR}/${s}.sh"
 done
 

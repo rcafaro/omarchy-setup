@@ -17,3 +17,5 @@ if [ -f "$UNAGUI_LOGO_INV" ]; then
 else
     warn "Unagui logo (inverted) not found — skipping boot screen."
 fi
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

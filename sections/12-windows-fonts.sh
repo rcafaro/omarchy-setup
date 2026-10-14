@@ -38,3 +38,5 @@ if [[ "$FONT_ANSWER" =~ ^[Yy]$ ]]; then
 else
     echo "   Skipping fonts."
 fi
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

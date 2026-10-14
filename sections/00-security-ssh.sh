@@ -9,3 +9,5 @@ if systemctl is-active --quiet sshd 2>/dev/null && [ -s "${HOME}/.ssh/authorized
 else
     omarchy setup security sshd
 fi
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

@@ -6,3 +6,5 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 section "5 — Voxtype"
 try omarchy voxtype install
 try omarchy voxtype config
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

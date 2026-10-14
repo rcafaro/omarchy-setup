@@ -10,3 +10,5 @@ for pkg in todoist-appimage teams-for-linux-bin zoom arduino-ide-bin \
     echo "Installing from AUR: $pkg"
     try omarchy pkg aur add "$pkg"
 done
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

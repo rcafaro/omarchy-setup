@@ -43,3 +43,5 @@ sudo ufw allow 1714:1764/tcp
 
 # Rclone OneDrive
 try omarchy plugin add https://github.com/jason-watts/omarchy-rclone-onedrive.git --enable
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

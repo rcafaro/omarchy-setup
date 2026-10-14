@@ -59,3 +59,5 @@ JW_DESKTOP
 xdg-mime default jwlibrary-url-handler.desktop x-scheme-handler/jwlibrary || true
 VERIFIED=$(xdg-mime query default x-scheme-handler/jwlibrary 2>/dev/null || echo "<não verificado>")
 echo "   JW handler verification: ${VERIFIED}"
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

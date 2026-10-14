@@ -4,7 +4,9 @@
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 
 section "1 — Remove unwanted webapps"
-for app in hey HEY X Basecamp "Google Messages" Zoom; do
+for app in hey HEY X Basecamp "Google Messages" "Google Maps" Zoom; do
     echo "Removing webapp: $app"
     try omarchy webapp remove "$app"
 done
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

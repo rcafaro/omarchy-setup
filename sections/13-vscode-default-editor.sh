@@ -42,3 +42,5 @@ for mime in text/plain text/x-shellscript text/x-python; do
         echo "${mime} → ${result:-unknown}"
     fi
 done
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"

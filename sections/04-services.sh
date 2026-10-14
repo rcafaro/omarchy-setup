@@ -6,3 +6,5 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 section "4 — Enable services"
 systemctl --user enable --now syncthing.service
 sudo systemctl enable --now ecbd.service   # Epson printer daemon
+
+mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"
