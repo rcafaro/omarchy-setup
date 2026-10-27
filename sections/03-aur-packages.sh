@@ -6,7 +6,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_lib.sh"
 section "3 — AUR packages"
 for pkg in todoist-appimage teams-for-linux-bin zoom arduino-ide-bin \
            epson-inkjet-printer-201207w epson-printer-utility \
-           seafile-client bindfs hyprmon-bin remmina-plugin-rdesktop; do
+           seafile-client bindfs hyprmon-bin remmina-plugin-rdesktop \
+           artcraft-launcher-appimage; do
     echo "Installing from AUR: $pkg"
     try omarchy pkg aur add "$pkg"
 done
