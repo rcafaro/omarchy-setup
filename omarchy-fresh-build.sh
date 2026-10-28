@@ -109,7 +109,8 @@ for s in \
     11-branding \
     12-windows-fonts \
     13-vscode-default-editor \
-    14-nas-mounts
+    14-nas-mounts \
+    15-keyboard\
 do
     if reason=$(section_disabled "$s"); then
         echo "[skip] ${s} — ${reason}"
