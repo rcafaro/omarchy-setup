@@ -39,7 +39,7 @@ omarchy restart shell
 
 # KDE Connect plugin + firewall
 try omarchy plugin add https://github.com/seb-krz/omarchy-connect.git --enable
-sudo ufw allow 1714:1764/tcp
+sudo ufw allow 1714:1764
 
 # Rclone OneDrive
 try omarchy plugin add https://github.com/jason-watts/omarchy-rclone-onedrive.git --enable
