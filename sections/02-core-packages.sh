@@ -17,6 +17,7 @@ try omarchy pkg add kdeconnect
 try omarchy pkg add sunshine
 try omarchy pkg add flatpak
 try omarchy pkg add thunderbird
+try omarchy pkg add gamemode    #helper for heroic
 
 # flea file manager
 try omarchy pkg add flea
