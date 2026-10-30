@@ -7,8 +7,11 @@ section "15 — Keyboard"
 
 INPUT_LUA="${HOME}/.config/hypr/input.lua"
 
-# US International layout with a regular Caps Lock (no compose:caps, no
-# dual-shift toggle). Skipped when the user already set a custom kb_layout.
+# US International layout with a traditional Caps Lock.
+# Omarchy's default input.lua sets kb_options="compose:caps,shift:both_capslock_cancel",
+# and it loads BEFORE this file — so kb_options MUST be overridden with an explicit
+# empty string. Deleting the key (leaving it unset) does NOT clear the default.
+# Skipped when the user already set a custom kb_layout.
 if [[ -f "${INPUT_LUA}" ]] && grep -qE '^[[:space:]]*kb_layout[[:space:]]*=' "${INPUT_LUA}"; then
     warn "input.lua already has a custom kb_layout — leaving it untouched."
 else
@@ -24,6 +27,11 @@ hl.config({
     -- US International (with diacritics) — matches naboo.
     kb_layout = "us",
     kb_variant = "intl",
+
+    -- Traditional Caps Lock. Omarchy's default ships
+    -- "compose:caps,shift:both_capslock_cancel"; an explicit empty string
+    -- clears it. Omitting the key does NOT — defaults load first.
+    kb_options = "",
   },
 })
 
@@ -83,8 +91,11 @@ EOF
 fi
 
 # Apply immediately if a Hyprland session is running (no-op on fresh installs).
-if command -v hyprctl >/dev/null 2>&1 && hyprctl monitors >/dev/null 2>&1; then
-    try hyprctl reload
+if command -v hyprctl >/dev/null 2>&1; then
+    SIG=$(ls "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr/" 2>/dev/null | head -1)
+    if [[ -n "${SIG}" ]]; then
+        HYPRLAND_INSTANCE_SIGNATURE="${SIG}" try hyprctl reload
+    fi
 fi
 
 mark_section_done "$(basename "${BASH_SOURCE[0]}" .sh)"
