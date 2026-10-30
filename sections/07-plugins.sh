@@ -30,6 +30,10 @@ try omarchy plugin add https://github.com/BibekBhusal0/omarchy-better-lock.git -
 
 #Foamy notifications
 try omarchy plugin add https://github.com/foamrider/foamy-notifications.git --enable
+try omarchy plugin add https://github.com/foamrider/foamy-notification-center.git --enable
+
+#LLM Monitor
+try omarchy plugin add https://github.com/uBruckhaus/omarchy-llm-usage.git --enable
 
 # OmaMigrate (with custom binding)
 try omarchy plugin add https://github.com/luneth90/omamigrate.git --enable
